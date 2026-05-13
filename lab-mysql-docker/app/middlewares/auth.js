@@ -2,6 +2,14 @@ const express = require('express');
 const router = express.Router();
 const usuariosService = require('../services/usuariosService');
 
+function verificarSessao(req, res, next) {
+  if (req.session && req.session.usuario) {
+    next(); 
+  } else {
+    return res.status(401).json({ erro: 'Acesso negado. Você precisa fazer login.' });
+  }
+}
+
 router.post('/login', async (req, res) => {
   const { email, senha } = req.body;
   
@@ -17,8 +25,13 @@ router.post('/login', async (req, res) => {
 
 router.post('/logout', (req, res) => {
   req.session.destroy(() => {
+    res.clearCookie('lab_session_id'); 
     res.json({ mensagem: 'Logout realizado com sucesso' });
   });
 });
 
-module.exports = router;
+
+module.exports = {
+  router,
+  verificarSessao
+};

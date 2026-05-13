@@ -20,8 +20,9 @@ services:
     build: ./app
     container_name: app_lab
     restart: always
-    ports:
-      - "3000:3000"
+
+    expose:
+      - "3000"
     depends_on:
       - mysql
 

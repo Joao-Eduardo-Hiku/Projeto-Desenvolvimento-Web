@@ -3,7 +3,7 @@ const emailInput = document.getElementById('email');
 const senhaInput = document.getElementById('senha');
 const mensagem = document.getElementById('mensagem');
 
-const API_LOGIN_URL = 'http://localhost:3000/auth/login';
+const API_LOGIN_URL = '/api/auth/login';
 
 function mostrarMensagem(texto, erro = false) {
   mensagem.textContent = texto;

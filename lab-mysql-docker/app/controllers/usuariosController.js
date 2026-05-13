@@ -16,12 +16,24 @@ async function buscarPorId(req, res) {
 }
 
 async function criar(req, res) {
-  const { nome, email, senha } = req.body;
-  if (!nome || !email || !senha) {
-    return res.status(400).json({ erro: 'Nome, email e senha sao obrigatorios' });
+  try {
+    const { nome, email, senha } = req.body;
+
+    if (!nome || !email || !senha) {
+      return res.status(400).json({ erro: 'Nome, email e senha sao obrigatorios' });
+    }
+
+    const usuario = await service.criar({ nome, email, senha });
+    return res.status(201).json(usuario);
+
+  } catch (erro) {
+    if (erro.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ erro: 'Email já cadastrado' });
+    }
+    
+    console.error('Erro no banco de dados:', erro);
+    return res.status(500).json({ erro: 'Erro BD: ' + erro.message });
   }
-  const usuario = await service.criar({ nome, email, senha });
-  return res.status(201).json(usuario);
 }
 
 async function atualizar(req, res) {

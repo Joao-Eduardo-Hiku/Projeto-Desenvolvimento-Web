@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buscar Plantas | Sistema</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1>Catálogo de Plantas</h1>
+    <nav>
+      <p><a href="login.html">Sair do Sistema</a></p>
+    </nav>
+  </header>
+  
+  <main class="layout">
+    <section class="panel" style="margin: 0 auto; max-width: 600px;">
+      <h2>Pesquisar Espécies</h2>
+      
+      <form id="busca-form">
+        <div class="field">
+          <label for="termo-busca">Nome da planta (em inglês)</label>
+          <input type="text" id="termo-busca" placeholder="Ex: Sunflower, Rose, Cactus..." required />
+        </div>
+        <div class="actions">
+          <button type="submit">Buscar</button>
+        </div>
+      </form>
+      
+      <div id="resultados container" style="margin-top: 24px;">
+        <p id="status-busca" style="text-align: center;">Digite um termo acima para pesquisar na API Perenual.</p>
+        <div id="lista-plantas">
+          </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

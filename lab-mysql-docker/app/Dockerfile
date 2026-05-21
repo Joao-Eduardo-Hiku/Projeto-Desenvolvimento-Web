@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Utiliza npm ci para instalações limpas baseadas no lockfile
-RUN npm ci
+RUN npm install
 
 COPY . .
 

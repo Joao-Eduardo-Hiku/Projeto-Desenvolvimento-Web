@@ -16,6 +16,7 @@ async function buscarPorId(id) {
   return rows[0] || null;
 }
 
+// Retorna a senha (hash) apenas para uso interno do login
 async function buscarPorEmail(email) {
   const [rows] = await db.query(
     'SELECT id, nome, email, senha FROM usuarios WHERE email = ?',
@@ -25,7 +26,9 @@ async function buscarPorEmail(email) {
 }
 
 async function criar({ nome, email, senha }) {
+  // Gera o hash antes de salvar no banco
   const senhaHash = await bcrypt.hash(senha, SALT_ROUNDS);
+
   const [result] = await db.query(
     'INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)',
     [nome, email, senhaHash]

@@ -23,6 +23,8 @@ services:
     restart: always
     expose:
       - "3000"
+    env_file:
+      - ./app/.env
     depends_on:
       - mysql
 

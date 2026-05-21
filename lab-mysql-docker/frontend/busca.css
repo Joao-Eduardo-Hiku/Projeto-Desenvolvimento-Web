@@ -1,0 +1,64 @@
+#lista-plantas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.planta-card {
+  background-color: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(40, 30, 20, 0.08);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.planta-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(40, 30, 20, 0.15);
+  border-color: var(--accent);
+}
+
+.planta-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  background-color: #f0f0f0; 
+}
+
+
+.planta-info {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.planta-info h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: var(--text);
+  text-transform: capitalize;
+}
+
+.planta-info p {
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.planta-info .ciclo {
+  margin-top: auto;
+  display: inline-block;
+  background-color: var(--bg-gradient-1);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  align-self: flex-start;
+  text-transform: uppercase;
+}

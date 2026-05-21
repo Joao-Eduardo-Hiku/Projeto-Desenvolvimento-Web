@@ -1,45 +1,36 @@
-const form = document.getElementById('usuario-form');
-const nomeInput = document.getElementById('nome');
-const emailInput = document.getElementById('email');
-const senhaInput = document.getElementById('senha');
-const mensagem = document.getElementById('mensagem');
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('usuario-form');
+  const mensagem = document.getElementById('mensagem');
 
-const API_URL = '/api/usuarios';
+  if (!form) return;
 
-function mostrarMensagem(texto, erro = false) {
-  mensagem.textContent = texto;
-  mensagem.style.color = erro ? '#b42318' : '#0b5b55';
-}
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
 
-async function salvarUsuario(event) {
-  event.preventDefault();
+    const payload = {
+      nome: document.getElementById('nome').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      senha: document.getElementById('senha').value.trim()
+    };
 
-  const payload = {
-    nome: nomeInput.value.trim(),
-    email: emailInput.value.trim(),
-    senha: senhaInput.value.trim()
-  };
+    try {
+      const resposta = await fetch('/api/usuarios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-  try {
-    const resposta = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (!resposta.ok) {
-      const erro = await resposta.json();
-      mostrarMensagem(erro.erro || 'Falha ao cadastrar', true);
-      return;
+      if (resposta.ok) {
+        window.location.replace('login.html');
+      } else {
+        const dados = await resposta.json();
+        mensagem.textContent = dados.erro || 'Erro ao realizar cadastro.';
+        mensagem.style.color = 'red';
+      }
+    } catch (erro) {
+      console.error('Erro no cadastro:', erro);
+      mensagem.textContent = 'Erro de conexão com o servidor.';
+      mensagem.style.color = 'red';
     }
-
-    mostrarMensagem('Usuário cadastrado com sucesso!');
-    form.reset(); // Limpa os campos do formulário
-  } catch (error) {
-    mostrarMensagem('Erro de conexão com o servidor', true);
-  }
-}
-
-form.addEventListener('submit', salvarUsuario);
+  });
+});

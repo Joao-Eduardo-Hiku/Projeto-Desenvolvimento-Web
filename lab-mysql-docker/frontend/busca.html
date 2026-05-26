@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="./imagens/icone_site.png" />
   <title>Buscar Plantas | Sistema</title>
   <link rel="stylesheet" href="./styles.css" />
   <link rel="stylesheet" href="./busca.css" />
@@ -10,8 +11,11 @@
 <body>
   <header class="site-header">
     <h1>Catálogo de Plantas</h1>
-    <nav>
-      <p><a href="login.html">Sair do Sistema</a></p>
+    <nav style="display: flex; justify-content: center; align-items: center; gap: 24px;">
+      <a href="perfil.html" title="Meu Perfil" style="display: flex; align-items: center;">
+        <img src="./imagens/icone_perfil.png" alt="Perfil" style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover;">
+      </a>
+      <p style="margin: 0;"><a href="login.html">Sair do Sistema</a></p>
     </nav>
   </header>
   
@@ -29,7 +33,7 @@
         </div>
       </form>
       
-      <div id="resultados container" style="margin-top: 24px;">
+      <div id="resultados-container" style="margin-top: 24px;">
         <p id="status-busca" style="text-align: center;">Digite um termo acima para pesquisar na API Perenual.</p>
         <div id="lista-plantas">
           </div>

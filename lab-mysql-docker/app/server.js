@@ -1,12 +1,19 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
 const cors = require('cors');
+const helmet = require('helmet');
+
+const dbPool = require('./db');
 const usuariosRoutes = require('./routes/usuarios');
 const plantasRoutes = require('./routes/plantas');
 const authModule = require('./middlewares/auth');
 
 const app = express();
+
+app.set('trust proxy', 1);
+app.use(helmet());
 
 app.use(cors({
   origin: process.env.CORS_ORIGIN,
@@ -16,10 +23,18 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const sessionStore = new MySQLStore({
+  clearExpired: true,
+  checkExpirationInterval: 900000,
+  expiration: 86400000,
+  createDatabaseTable: true
+}, dbPool);
+
 app.use(
   session({
     name: 'lab_session_id',
-    secret: process.env.SESSION_SECRET, 
+    secret: process.env.SESSION_SECRET,
+    store: sessionStore,
     resave: false,
     saveUninitialized: false,
     cookie: {

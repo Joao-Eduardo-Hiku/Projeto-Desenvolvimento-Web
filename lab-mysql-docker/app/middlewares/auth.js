@@ -1,7 +1,15 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
 const usuariosService = require('../services/usuariosService');
+
+// Criação da regra contra força bruta: máximo de 5 tentativas a cada 15 minutos por IP
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 5, // Limita a 5 requisições por janela (windowMs)
+  message: { erro: 'Muitas tentativas de login incorretas. Tente novamente em 15 minutos.' }
+});
 
 function verificarSessao(req, res, next) {
   if (req.session && req.session.usuario) {
@@ -10,7 +18,8 @@ function verificarSessao(req, res, next) {
   return res.status(401).json({ erro: 'Acesso negado. Você precisa fazer login.' });
 }
 
-router.post('/login', async (req, res) => {
+// Aplicando o loginLimiter como middleware nesta rota específica
+router.post('/login', loginLimiter, async (req, res) => {
   const { email, senha } = req.body;
 
   // Validação básica dos campos
@@ -22,7 +31,6 @@ router.post('/login', async (req, res) => {
     const usuario = await usuariosService.buscarPorEmail(email);
 
     // bcrypt.compare retorna false se usuario não existir ou senha não bater
-    // A verificação é feita mesmo sem usuário para evitar timing attacks
     const senhaCorreta = usuario
       ? await bcrypt.compare(senha, usuario.senha)
       : false;

@@ -23,6 +23,10 @@ services:
       - "3000"
     env_file:
       - ./app/.env
+
+    volumes:
+      - ./app:/app
+      - /app/node_modules
     depends_on:
       - mysql
 

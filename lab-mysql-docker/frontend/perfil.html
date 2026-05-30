@@ -7,26 +7,44 @@
   
   <link rel="icon" type="image/png" href="./imagens/icone_site.png" />
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./busca.css" />
 </head>
 <body>
-  <header class="site-header">
-    <h1>Meu Perfil</h1>
-    <nav>
-      <p><a href="busca.html">Voltar para a Busca</a></p>
-    </nav>
+  <header class="site-header" style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 16px 3%; margin: 0 auto; width: 100%; box-sizing: border-box;">
+    
+    <div style="justify-self: start;">
+      <a href="busca.html" style="background-color: #5D4037; color: #9dbf3a; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+        Voltar
+      </a>
+    </div>
+
+    <h1 style="margin: 0; justify-self: center; text-align: center;">Meu Perfil</h1>
+    <div style="justify-self: end;"></div>
+
   </header>
   
   <main class="layout">
     <section class="panel" style="margin: 0 auto; max-width: 400px; text-align: center;">
       <img src="./imagens/icone_perfil.png" alt="Foto de Perfil" style="width: 130px; height: 130px; border-radius: 50%; border: 4px solid var(--accent); margin-bottom: 16px; object-fit: cover;">
       
-      <h2 style="margin-top: 0; margin-bottom: 4px;">teste22255@teste22255</h2>
+      <h2 style="margin-top: 0; margin-bottom: 4px;">João Eduardo</h2>
       <p style="color: var(--muted); font-size: 16px; margin-top: 0; margin-bottom: 32px;">teste22255@teste22255</p>
       
       <div class="actions">
          <button style="background: var(--danger); width: 100%;" onclick="window.location.href='login.html'">Encerrar Sessão</button>
       </div>
     </section>
+
+    <section class="panel" style="margin: 24px auto; max-width: 900px;">
+      <h2 style="margin-bottom: 20px; border-bottom: 2px solid var(--line); padding-bottom: 10px;">Minhas Plantas Favoritas</h2>
+      
+      <div id="lista-favoritos" class="lista-plantas-grid">
+         <p style="text-align: center; color: var(--muted);">Carregando seus favoritos...</p>
+      </div>
+    </section>
+
   </main>
+
+  <script src="./perfil.js"></script>
 </body>
 </html>

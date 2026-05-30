@@ -11,7 +11,7 @@ async function buscarPlantas(event) {
   const termo = inputBusca.value.trim();
   if (!termo) return;
 
-  statusBusca.textContent = `Buscando resultados para "${termo}"...`;
+  statusBusca.textContent = `A consultar a Inteligência Artificial sobre "${termo}". Isto pode demorar alguns segundos, aguarde...`;
   statusBusca.style.color = 'var(--text)';
   listaPlantas.innerHTML = '';
 
@@ -26,41 +26,75 @@ async function buscarPlantas(event) {
     const dados = await resposta.json();
 
     if (dados.data && dados.data.length > 0) {
-      statusBusca.textContent = `${dados.data.length} espécies encontradas.`;
+      statusBusca.innerHTML = `Aqui estão as informações geradas por IA para <strong>"${termo}"</strong>.`;
       renderizarResultados(dados.data);
     } else {
-      statusBusca.textContent = 'Nenhuma planta encontrada. Tente buscar em inglês (ex: Rose, Cactus).';
+      statusBusca.textContent = `Nenhuma informação encontrada para "${termo}".`;
     }
 
   } catch (erro) {
     console.error('Erro na requisição:', erro);
-    statusBusca.textContent = 'Ocorreu um erro ao buscar as plantas. Tente novamente mais tarde.';
+    statusBusca.textContent = 'Ocorreu um erro ao comunicar com a IA. Tente novamente mais tarde.';
     statusBusca.style.color = 'var(--danger)';
   }
 }
 
 function renderizarResultados(plantas) {
+  listaPlantas.innerHTML = '';
   plantas.forEach(planta => {
-    const imagemUrl = (planta.default_image && planta.default_image.regular_url)
-      ? planta.default_image.regular_url
-      : 'https://placehold.co/300x200?text=Sem+Imagem'; 
-
     const card = document.createElement('div');
     card.className = 'planta-card';
 
+    const imagemUrl = planta.imagemUrl || 'https://placehold.co/400x300?text=Planta';
+    const parecidas = Array.isArray(planta.parecidas) ? planta.parecidas.join(', ') : 'Nenhuma';
+
     card.innerHTML = `
-      <img src="${imagemUrl}" alt="${planta.common_name}">
+      <div style="position: relative;">
+        <img src="${imagemUrl}" alt="${planta.nome}" onerror="this.src='https://placehold.co/400x300?text=Planta'">
+        <button class="btn-favorito" onclick='gerenciarFavorito(this, ${JSON.stringify(planta).replace(/'/g, "&apos;")})'>
+          <span class="coracao-icon">♡</span>
+        </button>
+      </div>
       <div class="planta-info">
-        <h3>${planta.common_name}</h3>
-        <p><strong>Científico:</strong> <em>${planta.scientific_name ? planta.scientific_name[0] : 'N/A'}</em></p>
-        <p><strong>Rega:</strong> ${planta.watering || 'Não informado'}</p>
-        <p><strong>Luz:</strong> ${planta.sunlight ? planta.sunlight.join(', ') : 'Não informado'}</p>
-        <span class="ciclo">${planta.cycle || 'Desconhecido'}</span>
+        <h3>${planta.nome}</h3>
+        <p><strong>Científico:</strong> <em>${planta.nomeCientifico}</em></p>
+        <p><strong>Clima:</strong> ${planta.clima}</p>
+        <p><strong>Cuidados:</strong> ${planta.cuidados}</p>
+        <p><strong>Parecidas:</strong> ${parecidas}</p>
+        <span class="ciclo">Vida: ${planta.expectativaVida}</span>
       </div>
     `;
-
     listaPlantas.appendChild(card);
   });
+}
+
+async function gerenciarFavorito(btn, planta) {
+  try {
+    const res = await fetch('/api/favoritos/toggle', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(planta),
+      credentials: 'include'
+    });
+    
+    if (!res.ok) throw new Error('Erro na resposta do servidor');
+
+    const dados = await res.json();
+    const icon = btn.querySelector('.coracao-icon');
+
+    if (dados.favorito) {
+      icon.textContent = '❤';
+      btn.classList.add('active'); 
+      alert(`${planta.nome} adicionado aos favoritos!`);
+    } else {
+      icon.textContent = '♡';
+      btn.classList.remove('active');
+      alert(`${planta.nome} removido dos favoritos!`);
+    }
+  } catch (erro) {
+    console.error('Erro ao favoritar:', erro);
+    alert('Erro ao salvar favorito. Verifique se a tabela existe no banco.');
+  }
 }
 
 form.addEventListener('submit', buscarPlantas);

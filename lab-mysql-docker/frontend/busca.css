@@ -62,3 +62,32 @@
   align-self: flex-start;
   text-transform: uppercase;
 }
+
+.btn-favorito {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  font-size: 24px;
+  color: #888; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-favorito.active {
+  color: #ff4757; 
+  background: white;
+  border-color: #ff4757;
+}
+
+.btn-favorito:hover {
+  transform: scale(1.1);
+}

@@ -27,7 +27,13 @@ async function buscarPlantas(event) {
 
     if (dados.data && dados.data.length > 0) {
       statusBusca.innerHTML = `Aqui estão as informações geradas por IA para <strong>"${termo}"</strong>.`;
-      renderizarResultados(dados.data);
+      
+      // Busca os favoritos salvos no banco para cruzar os dados
+      const resFav = await fetch('/api/favoritos', { credentials: 'include' });
+      const jsonFav = resFav.ok ? await resFav.json() : { data: [] };
+      const favoritosAtuais = jsonFav.data || [];
+
+      renderizarResultados(dados.data, favoritosAtuais);
     } else {
       statusBusca.textContent = `Nenhuma informação encontrada para "${termo}".`;
     }
@@ -39,7 +45,7 @@ async function buscarPlantas(event) {
   }
 }
 
-function renderizarResultados(plantas) {
+function renderizarResultados(plantas, favoritos = []) {
   listaPlantas.innerHTML = '';
   plantas.forEach(planta => {
     const card = document.createElement('div');
@@ -48,11 +54,19 @@ function renderizarResultados(plantas) {
     const imagemUrl = planta.imagemUrl || 'https://placehold.co/400x300?text=Planta';
     const parecidas = Array.isArray(planta.parecidas) ? planta.parecidas.join(', ') : 'Nenhuma';
 
+    const jaFavoritado = favoritos.some(fav => 
+      (fav.nomeCientifico && planta.nomeCientifico && fav.nomeCientifico.toLowerCase() === planta.nomeCientifico.toLowerCase()) || 
+      (fav.nome && planta.nome && fav.nome.toLowerCase() === planta.nome.toLowerCase())
+    );
+
+    const iconeCoracao = jaFavoritado ? '❤' : '♡';
+    const classeBotao = jaFavoritado ? 'btn-favorito active' : 'btn-favorito';
+
     card.innerHTML = `
       <div style="position: relative;">
         <img src="${imagemUrl}" alt="${planta.nome}" onerror="this.src='https://placehold.co/400x300?text=Planta'">
-        <button class="btn-favorito" onclick='gerenciarFavorito(this, ${JSON.stringify(planta).replace(/'/g, "&apos;")})'>
-          <span class="coracao-icon">♡</span>
+        <button class="${classeBotao}" onclick='gerenciarFavorito(this, ${JSON.stringify(planta).replace(/'/g, "&apos;")})'>
+          <span class="coracao-icon">${iconeCoracao}</span>
         </button>
       </div>
       <div class="planta-info">
@@ -62,6 +76,7 @@ function renderizarResultados(plantas) {
         <p><strong>Cuidados:</strong> ${planta.cuidados}</p>
         <p><strong>Parecidas:</strong> ${parecidas}</p>
         <span class="ciclo">Vida: ${planta.expectativaVida}</span>
+        ${planta.linkReferencia ? `<a href="${planta.linkReferencia}" target="_blank" rel="noopener noreferrer" class="link-referencia">🔗 Ver referência</a>` : ''}
       </div>
     `;
     listaPlantas.appendChild(card);

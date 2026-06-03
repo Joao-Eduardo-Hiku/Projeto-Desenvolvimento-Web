@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS sessions (
     expires INT(11) UNSIGNED NOT NULL,
     data MEDIUMTEXT COLLATE utf8mb4_bin,
     PRIMARY KEY (session_id)
+);
 
 CREATE TABLE IF NOT EXISTS favoritos (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -29,6 +30,7 @@ CREATE TABLE IF NOT EXISTS favoritos (
   expectativaVida VARCHAR(100),
   imagemUrl TEXT,
   parecidas TEXT,
+  linkReferencia TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );

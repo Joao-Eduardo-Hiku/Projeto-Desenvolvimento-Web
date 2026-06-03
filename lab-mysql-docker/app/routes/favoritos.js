@@ -17,7 +17,7 @@ router.get('/', auth.verificarSessao, async (req, res) => {
 
 
 router.post('/toggle', auth.verificarSessao, async (req, res) => {
-  const { nome, nomeCientifico, clima, cuidados, expectativaVida, imagemUrl, parecidas } = req.body;
+  const { nome, nomeCientifico, clima, cuidados, expectativaVida, imagemUrl, parecidas, linkReferencia } = req.body;
   const usuario_id = req.session.usuario.id;
 
   try {
@@ -32,8 +32,8 @@ router.post('/toggle', auth.verificarSessao, async (req, res) => {
       
       const parecidasStr = Array.isArray(parecidas) ? parecidas.join(',') : '';
       await db.query(
-        'INSERT INTO favoritos (usuario_id, nome, nomeCientifico, clima, cuidados, expectativaVida, imagemUrl, parecidas) VALUES (?,?,?,?,?,?,?,?)',
-        [usuario_id, nome, nomeCientifico, clima, cuidados, expectativaVida, imagemUrl, parecidasStr]
+        'INSERT INTO favoritos (usuario_id, nome, nomeCientifico, clima, cuidados, expectativaVida, imagemUrl, parecidas, linkReferencia) VALUES (?,?,?,?,?,?,?,?,?)',
+        [usuario_id, nome, nomeCientifico, clima, cuidados, expectativaVida, imagemUrl, parecidasStr, linkReferencia || null]
       );
       return res.json({ favorito: true });
     }

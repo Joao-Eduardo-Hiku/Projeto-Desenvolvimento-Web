@@ -19,16 +19,17 @@ async function buscarPlantas(event) {
     const url = `${API_BASE_URL}?q=${encodeURIComponent(termo)}`;
     const resposta = await fetch(url, { credentials: 'include' });
 
-    if (!resposta.ok) {
-      throw new Error('Falha na comunicação com o servidor');
-    }
-
     const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      statusBusca.textContent = dados.erro || 'Ocorreu um erro ao comunicar com a IA. Tente novamente mais tarde.';
+      statusBusca.style.color = 'var(--danger)';
+      return;
+    }
 
     if (dados.data && dados.data.length > 0) {
       statusBusca.innerHTML = `Aqui estão as informações geradas por IA para <strong>"${termo}"</strong>.`;
       
-      // Busca os favoritos salvos no banco para cruzar os dados
       const resFav = await fetch('/api/favoritos', { credentials: 'include' });
       const jsonFav = resFav.ok ? await resFav.json() : { data: [] };
       const favoritosAtuais = jsonFav.data || [];

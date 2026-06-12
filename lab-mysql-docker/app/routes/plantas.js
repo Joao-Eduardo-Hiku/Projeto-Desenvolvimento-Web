@@ -2,13 +2,52 @@ const express = require('express');
 const router = express.Router();
 const authModule = require('../middlewares/auth');
 const Groq = require('groq-sdk');
+const rateLimit = require('express-rate-limit');
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+const buscaLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 20, // 20 buscas por janela
+  message: { erro: 'Muitas buscas realizadas. Tente novamente em alguns minutos.' }
+});
+
 function normalizarNomeBusca(nomeCientifico) {
   return nomeCientifico
     .replace(/[×x]\s+/gi, '')   // remove × ou x seguido de espaço
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+async function validarSeEhPlanta(termo) {
+  try {
+    const validacao = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: 'Você é um classificador. Responda APENAS em JSON estrito, sem texto adicional.'
+        },
+        {
+          role: 'user',
+          content: `O termo abaixo se refere a uma planta, árvore, flor, fungo, alga ou espécie vegetal (nome popular, científico ou com erro de digitação)?
+
+          Termo: "${termo}"
+
+          Responda APENAS este JSON:
+          {"valido": true ou false}`
+        }
+      ],
+      model: 'llama-3.1-8b-instant',
+      response_format: { type: 'json_object' },
+      temperature: 0
+    });
+
+    const resultado = JSON.parse(validacao.choices[0].message.content);
+    return resultado.valido === true;
+  } catch (erro) {
+    console.error('Erro na validação:', erro);
+    return true;
+  }
 }
 
 async function buscarImagemReal(nomeCientifico) {
@@ -46,13 +85,11 @@ async function buscarImagemReal(nomeCientifico) {
     const pages = data.query.pages;
     const page = Object.values(pages)[0];
     if (page.images && page.images.length > 0) {
-      // Pega a primeira imagem que pareça uma foto (não ícone/mapa)
       const imagem = page.images.find(img =>
         /\.(jpg|jpeg|png)/i.test(img.title) &&
         !/(flag|map|icon|logo|locator|blank|silhouette)/i.test(img.title)
       );
       if (imagem) {
-        // Monta URL do Wikimedia Commons via API imageinfo
         const titleEncoded = encodeURIComponent(imagem.title);
         const infoUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${titleEncoded}&prop=imageinfo&iiprop=url&iiurlwidth=500&format=json&origin=*`;
         const infoRes = await fetch(infoUrl);
@@ -82,11 +119,22 @@ async function buscarImagemReal(nomeCientifico) {
   return 'https://placehold.co/400x300?text=Foto+Indispon%C3%ADvel';
 }
 
-router.get('/', authModule.verificarSessao, async (req, res) => {
+router.get('/', authModule.verificarSessao, buscaLimiter, async (req, res) => {
   const { q } = req.query;
   if (!q) return res.status(400).json({ erro: 'Busca vazia' });
 
+  if (q.length > 100) {
+    return res.status(400).json({ erro: 'Termo de busca muito longo (máximo 100 caracteres).' });
+  }
+
   try {
+    const ehPlanta = await validarSeEhPlanta(q);
+    if (!ehPlanta) {
+      return res.status(400).json({
+        erro: 'O termo pesquisado não parece ser uma planta. Tente o nome popular ou científico de uma espécie vegetal.'
+      });
+    }
+
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         {

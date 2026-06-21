@@ -4,23 +4,23 @@ async function carregarFavoritos() {
     const res = await fetch('/api/favoritos', { credentials: 'include' });
     const json = await res.json();
     const favoritos = json.data;
-    
+
     if (!favoritos || favoritos.length === 0) {
       container.innerHTML = '<p style="text-align: center; color: var(--muted); grid-column: 1/-1;">Você ainda não favoritou nenhuma planta.</p>';
       return;
     }
-    
+
     container.innerHTML = '';
-    
+
     favoritos.forEach(planta => {
       const card = document.createElement('div');
       card.className = 'planta-card';
-      
+
       const parecidas = Array.isArray(planta.parecidas) ? planta.parecidas.join(', ') : (planta.parecidas || 'Nenhuma');
-             
+
       card.innerHTML = `
         <div style="position: relative;">
-          <img src="${planta.imagemUrl}" alt="${planta.nome}" onerror="this.src='https://placehold.co/400x300?text=Planta'">
+          <img src="${planta.imagemUrl}" alt="Foto de ${planta.nome} (${planta.nomeCientifico})" onerror="this.src='https://placehold.co/400x300?text=Planta'">
         </div>
         <div class="planta-info">
           <h3>${planta.nome}</h3>
@@ -29,9 +29,9 @@ async function carregarFavoritos() {
           <p><strong>Cuidados:</strong> ${planta.cuidados}</p>
           <p><strong>Parecidas:</strong> ${parecidas}</p>
           <span class="ciclo">Vida: ${planta.expectativaVida}</span>
-          ${planta.linkReferencia ? `<a href="${planta.linkReferencia}" target="_blank" rel="noopener noreferrer" class="link-referencia">🔗 Ver referência</a>` : ''}
-          
-          <button onclick="removerFavorito('${planta.nome}')" style="background: var(--danger); color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; margin-top: 10px; font-size: 12px; font-weight: bold;">
+          ${planta.linkReferencia ? `<a href="${planta.linkReferencia}" target="_blank" rel="noopener noreferrer" class="link-referencia">🔗 Ver referência <span class="sr-only">(abre em nova aba)</span></a>` : ''}
+
+          <button onclick="removerFavorito('${planta.nome}')" aria-label="Remover ${planta.nome} dos favoritos" style="background: var(--danger); color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; margin-top: 10px; font-size: 12px; font-weight: bold;">
             Remover Favorito
           </button>
         </div>
@@ -46,7 +46,7 @@ async function carregarFavoritos() {
 
 async function removerFavorito(nome) {
   if (!confirm(`Deseja remover ${nome} dos favoritos?`)) return;
-  
+
   try {
     await fetch('/api/favoritos/toggle', {
       method: 'POST',
@@ -56,7 +56,12 @@ async function removerFavorito(nome) {
     });
     carregarFavoritos();
   } catch (erro) {
-    alert('Erro ao remover favorito');
+    const container = document.getElementById('lista-favoritos');
+    const aviso = document.createElement('p');
+    aviso.style.color = 'var(--danger)';
+    aviso.style.textAlign = 'center';
+    aviso.textContent = 'Erro ao remover favorito. Tente novamente.';
+    container.prepend(aviso);
   }
 }
 
@@ -64,6 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarDadosUsuario();
   carregarFavoritos();
 });
+
 async function carregarDadosUsuario() {
   try {
     const res = await fetch('/api/auth/me', { credentials: 'include' });

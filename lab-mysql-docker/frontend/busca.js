@@ -29,7 +29,7 @@ async function buscarPlantas(event) {
 
     if (dados.data && dados.data.length > 0) {
       statusBusca.innerHTML = `Aqui estão as informações geradas por IA para <strong>"${termo}"</strong>.`;
-      
+
       const resFav = await fetch('/api/favoritos', { credentials: 'include' });
       const jsonFav = resFav.ok ? await resFav.json() : { data: [] };
       const favoritosAtuais = jsonFav.data || [];
@@ -55,19 +55,22 @@ function renderizarResultados(plantas, favoritos = []) {
     const imagemUrl = planta.imagemUrl || 'https://placehold.co/400x300?text=Planta';
     const parecidas = Array.isArray(planta.parecidas) ? planta.parecidas.join(', ') : 'Nenhuma';
 
-    const jaFavoritado = favoritos.some(fav => 
-      (fav.nomeCientifico && planta.nomeCientifico && fav.nomeCientifico.toLowerCase() === planta.nomeCientifico.toLowerCase()) || 
+    const jaFavoritado = favoritos.some(fav =>
+      (fav.nomeCientifico && planta.nomeCientifico && fav.nomeCientifico.toLowerCase() === planta.nomeCientifico.toLowerCase()) ||
       (fav.nome && planta.nome && fav.nome.toLowerCase() === planta.nome.toLowerCase())
     );
 
     const iconeCoracao = jaFavoritado ? '❤' : '♡';
     const classeBotao = jaFavoritado ? 'btn-favorito active' : 'btn-favorito';
+    const rotuloFavorito = jaFavoritado
+      ? `Remover ${planta.nome} dos favoritos`
+      : `Adicionar ${planta.nome} aos favoritos`;
 
     card.innerHTML = `
       <div style="position: relative;">
-        <img src="${imagemUrl}" alt="${planta.nome}" onerror="this.src='https://placehold.co/400x300?text=Planta'">
-        <button class="${classeBotao}" onclick='gerenciarFavorito(this, ${JSON.stringify(planta).replace(/'/g, "&apos;")})'>
-          <span class="coracao-icon">${iconeCoracao}</span>
+        <img src="${imagemUrl}" alt="Foto de ${planta.nome} (${planta.nomeCientifico})" onerror="this.src='https://placehold.co/400x300?text=Planta'">
+        <button class="${classeBotao}" aria-label="${rotuloFavorito}" aria-pressed="${jaFavoritado}" onclick='gerenciarFavorito(this, ${JSON.stringify(planta).replace(/'/g, "&apos;")})'>
+          <span class="coracao-icon" aria-hidden="true">${iconeCoracao}</span>
         </button>
       </div>
       <div class="planta-info">
@@ -77,7 +80,7 @@ function renderizarResultados(plantas, favoritos = []) {
         <p><strong>Cuidados:</strong> ${planta.cuidados}</p>
         <p><strong>Parecidas:</strong> ${parecidas}</p>
         <span class="ciclo">Vida: ${planta.expectativaVida}</span>
-        ${planta.linkReferencia ? `<a href="${planta.linkReferencia}" target="_blank" rel="noopener noreferrer" class="link-referencia">🔗 Ver referência</a>` : ''}
+        ${planta.linkReferencia ? `<a href="${planta.linkReferencia}" target="_blank" rel="noopener noreferrer" class="link-referencia">🔗 Ver referência <span class="sr-only">(abre em nova aba)</span></a>` : ''}
       </div>
     `;
     listaPlantas.appendChild(card);
@@ -92,7 +95,7 @@ async function gerenciarFavorito(btn, planta) {
       body: JSON.stringify(planta),
       credentials: 'include'
     });
-    
+
     if (!res.ok) throw new Error('Erro na resposta do servidor');
 
     const dados = await res.json();
@@ -100,16 +103,21 @@ async function gerenciarFavorito(btn, planta) {
 
     if (dados.favorito) {
       icon.textContent = '❤';
-      btn.classList.add('active'); 
-      alert(`${planta.nome} adicionado aos favoritos!`);
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      btn.setAttribute('aria-label', `Remover ${planta.nome} dos favoritos`);
+      statusBusca.textContent = `${planta.nome} adicionado aos favoritos.`;
     } else {
       icon.textContent = '♡';
       btn.classList.remove('active');
-      alert(`${planta.nome} removido dos favoritos!`);
+      btn.setAttribute('aria-pressed', 'false');
+      btn.setAttribute('aria-label', `Adicionar ${planta.nome} aos favoritos`);
+      statusBusca.textContent = `${planta.nome} removido dos favoritos.`;
     }
   } catch (erro) {
     console.error('Erro ao favoritar:', erro);
-    alert('Erro ao salvar favorito. Verifique se a tabela existe no banco.');
+    statusBusca.textContent = 'Erro ao salvar favorito. Tente novamente.';
+    statusBusca.style.color = 'var(--danger)';
   }
 }
 

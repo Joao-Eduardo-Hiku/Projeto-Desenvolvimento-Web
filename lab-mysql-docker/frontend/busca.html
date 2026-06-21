@@ -4,15 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/png" href="./imagens/icone_site.png" />
+  <meta name="description" content="Pesquise plantas e descubra informações geradas por IA sobre clima, cuidados e espécies parecidas." />
   <title>Buscar Plantas | Sistema</title>
   <link rel="stylesheet" href="./styles.css" />
   <link rel="stylesheet" href="./busca.css" />
 </head>
 <body>
-  <header class="site-header" style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 16px 3%; margin: 0 auto; width: 100%; box-sizing: border-box;">
-    
+  <header class="site-header" role="banner" style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 16px 3%; margin: 0 auto; width: 100%; box-sizing: border-box;">
+
     <div style="justify-self: start;">
-      <button onclick="fazerLogout()" style="background-color: #5D4037; color: #9dbf3a; padding: 10px 20px; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.2); border: none; cursor: pointer; width: auto;">
+      <button onclick="fazerLogout()" aria-label="Sair da conta" style="background-color: #5D4037; color: #9dbf3a; padding: 10px 20px; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.2); border: none; cursor: pointer; width: auto;">
         Sair
       </button>
     </div>
@@ -20,30 +21,31 @@
     <h1 style="margin: 0; justify-self: center; text-align: center;">Catálogo de Plantas</h1>
 
     <div style="justify-self: end;">
-      <a href="perfil.html" title="Meu Perfil" style="display: inline-block;">
-        <img src="./imagens/icone_perfil.png" alt="Perfil" style="width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: block;">
+      <a href="perfil.html" title="Meu Perfil" aria-label="Ir para meu perfil" style="display: inline-block;">
+        <img src="./imagens/icone_perfil.png" alt="" style="width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: block;">
       </a>
     </div>
 
   </header>
-  
-  <main class="layout">
-    <section class="panel" style="margin: 0 auto; max-width: 600px;">
-      <h2>Pesquisar Espécies</h2>
-      
+
+  <main class="layout" role="main">
+    <section class="panel" style="margin: 0 auto; max-width: 600px;" aria-labelledby="titulo-busca">
+      <h2 id="titulo-busca">Pesquisar Espécies</h2>
+
       <form id="busca-form">
         <div class="field">
           <label for="termo-busca">Nome da planta</label>
-          <input type="text" id="termo-busca" placeholder="..." required />
+          <input type="text" id="termo-busca" placeholder="Ex: Girassol, Rosa, Samambaia..." required aria-required="true" aria-describedby="dica-busca" />
+          <span id="dica-busca" class="sr-only">Digite o nome popular ou científico de uma planta. Os resultados são gerados por inteligência artificial.</span>
         </div>
         <div class="actions">
           <button type="submit">Buscar</button>
         </div>
       </form>
-      
+
       <div id="resultados-container" style="margin-top: 24px;">
-        <p id="status-busca" style="text-align: center;"></p>
-        <div id="lista-plantas">
+        <p id="status-busca" aria-live="polite" role="status" style="text-align: center;"></p>
+        <div id="lista-plantas" aria-label="Resultados da pesquisa">
           </div>
       </div>
     </section>
@@ -58,5 +60,5 @@ async function fazerLogout() {
 }
 </script>
 </body>
-<script src="./busca.js?v=4"></script>
+<script src="./busca.js?v=5"></script>
 </html>

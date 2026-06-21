@@ -28,11 +28,13 @@
         </div>
         <div class="field">
           <label for="email">Email</label>
-          <input type="email" id="email" name="email" required autocomplete="email" aria-required="true" />
+          <input type="email" id="email" name="email" required autocomplete="email" aria-required="true" aria-describedby="dica-email" />
+          <span id="dica-email" class="sr-only">Usaremos este email para você acessar sua conta</span>
         </div>
         <div class="field">
           <label for="senha">Senha</label>
-          <input type="password" id="senha" name="senha" required autocomplete="new-password" aria-required="true" />
+          <input type="password" id="senha" name="senha" required autocomplete="new-password" aria-required="true" minlength="6" aria-describedby="dica-senha" />
+          <span id="dica-senha" class="sr-only">Mínimo de 6 caracteres</span>
         </div>
         <div class="actions">
           <button type="submit">Cadastrar</button>
